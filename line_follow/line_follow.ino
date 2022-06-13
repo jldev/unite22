@@ -34,6 +34,10 @@ const int pwmBPin = 5;    // define pin for PWM used to control rotational speed
 #define RIGHT 4
 #define STOP 4
 
+#define RIGHT_SENSOR A0
+#define MIDDLE_SENSOR A1
+#define LEFT_SENSOR A2
+
 int distance;
 int yan = 0;
 void setup() {
@@ -59,8 +63,14 @@ void setup() {
 int digitalValue = 0;
 
 void loop() {
-  digitalValue = analogRead(A0);
-  Serial.print("digital value = ");
+  digitalValue = analogRead(LEFT_SENSOR);
+  Serial.print("Left = ");
+  Serial.print(digitalValue); 
+  digitalValue = analogRead(MIDDLE_SENSOR);
+  Serial.print(" Middle = ");
+  Serial.print(digitalValue); 
+  digitalValue = analogRead(RIGHT_SENSOR);
+  Serial.print(" Right = ");
   Serial.println(digitalValue); 
   delay(250);
 }
