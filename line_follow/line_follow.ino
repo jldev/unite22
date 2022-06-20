@@ -38,6 +38,10 @@ const int pwmBPin = 5;    // define pin for PWM used to control rotational speed
 #define MIDDLE_SENSOR A1
 #define LEFT_SENSOR A2
 
+#define MOTOR_DEFAULT_SPEED 110
+
+#define BLACK_LINE false
+
 int distance;
 int yan = 0;
 void setup() {
@@ -60,19 +64,10 @@ void setup() {
   Serial.begin(9600);
 }
 
-int digitalValue = 0;
 
 void loop() {
-  digitalValue = analogRead(LEFT_SENSOR);
-  Serial.print("Left = ");
-  Serial.print(digitalValue); 
-  digitalValue = analogRead(MIDDLE_SENSOR);
-  Serial.print(" Middle = ");
-  Serial.print(digitalValue); 
-  digitalValue = analogRead(RIGHT_SENSOR);
-  Serial.print(" Right = ");
-  Serial.println(digitalValue); 
-  delay(250);
+  goStayInTheLines();
+  delay(10);
 }
 
 //Control motor motion direction and speed function
@@ -115,20 +110,75 @@ float getDistance() {
     return maxDistance; // returns the maximum distance(cm)
 }
 
-void Tracking(){
-    if(analogRead(A0)>1000&&analogRead(A1)>1000&&analogRead(A2)>1000){
-      ctrlCar(FORWARD,120);//Three tracking detections are black lines
+boolean onLine(int reading){
+  if(BLACK_LINE){
+    return reading > 1000;
+  } else {
+    return reading < 100;
+  }
+}
+
+int readLineSensor(int pin){
+  int return_value = 0;
+  do{
+    return_value = analogRead(pin);
+  } while(return_value == 1023);
+  return return_value;
+}
+void goLineFollow(){
+    int left_reading = readLineSensor(LEFT_SENSOR);
+    int middle_reading = readLineSensor(MIDDLE_SENSOR);
+    int right_reading = readLineSensor(RIGHT_SENSOR);
+
+    boolean left_on_line = onLine(left_reading);
+    boolean middle_on_line = onLine(middle_reading);
+    boolean right_on_line = onLine(right_reading);
+    
+    if(left_on_line && middle_on_line && right_on_line){
+      //All on line |||
+      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
+    } else if(left_on_line && !middle_on_line && !right_on_line){
+      //left is on line - right and middle are not | - -
+      ctrlCar(LEFT,MOTOR_DEFAULT_SPEED);
+    }else if(!left_on_line && middle_on_line && !right_on_line){
+      //middle is on line - left and right are not - | -
+      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
+    } else if(!left_on_line && !middle_on_line && right_on_line){
+      //right is on line - left and middle are not - - |
+      ctrlCar(RIGHT,MOTOR_DEFAULT_SPEED);
+    } else if(!left_on_line && !middle_on_line && !right_on_line){
+      //All not on line - - -
+      ctrlCar(STOP,0);
     }
-    if(analogRead(A0)>1000&&analogRead(A1)<100&&analogRead(A2)<100){
-      ctrlCar(RIGHT,120);//Right A2 tracking detection is black line
+    delay(50);
+    ctrlCar(STOP,0);
+}
+
+void goStayInTheLines(){
+    int left_reading = analogRead(LEFT_SENSOR);
+    int middle_reading = analogRead(MIDDLE_SENSOR);
+    int right_reading = analogRead(RIGHT_SENSOR);
+
+    boolean left_on_line = onLine(left_reading);
+    boolean middle_on_line = onLine(middle_reading);
+    boolean right_on_line = onLine(right_reading);
+    
+    if(left_on_line && middle_on_line && right_on_line){
+      //All on line |||
+      ctrlCar(BACKWARD,MOTOR_DEFAULT_SPEED);
+    } else if(left_on_line && !middle_on_line && !right_on_line){
+      //left is on line - right and middle are not | - -
+      ctrlCar(RIGHT,MOTOR_DEFAULT_SPEED);
+    }else if(!left_on_line && middle_on_line && !right_on_line){
+      //middle is on line - left and right are not - | -
+      ctrlCar(BACKWARD,MOTOR_DEFAULT_SPEED);
+    } else if(!left_on_line && !middle_on_line && right_on_line){
+      //right is on line - left and middle are not - - |
+      ctrlCar(LEFT,MOTOR_DEFAULT_SPEED);
+    } else if(!left_on_line && !middle_on_line && !right_on_line){
+      //All not on line - - -
+      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
     }
-    if(analogRead(A0)<100&&analogRead(A1)>1000&&analogRead(A2)<100){
-      ctrlCar(FORWARD,120);//The middle side A1 tracking is detected as a black line
-    }
-    if(analogRead(A0)<100&&analogRead(A1)<100&&analogRead(A2)>1000){
-      ctrlCar(LEFT,120);//Left A0 tracking detection is black line
-    }
-    if(analogRead(A0)<100&&analogRead(A1)<100&&analogRead(A2)<100){
-      ctrlCar(STOP,0);//A0, A1, A2 tracking does not detect black lines
-    }
+    delay(50);
+    ctrlCar(STOP,0);
 }
