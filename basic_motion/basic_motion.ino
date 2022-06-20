@@ -1,13 +1,3 @@
-/***********************************************************
-File name:  wifi_arduinoTCP18.ino
-Website: www.adeept.com
-E-mail: support@adeept.com
-Author: Tom
-Date: 2019/10/30 
-***********************************************************/
-#include <Servo.h>
-#include <Adafruit_NeoPixel.h>
-
 //Motor control port
 const int dirAPin = 7;    // define pin used to control rotational direction of motor A
 const int pwmAPin = 6;    // define pin for PWM used to control rotational speed of motor A
@@ -38,6 +28,8 @@ void loop() {
    analogWrite(pwmAPin, 255);  
    digitalWrite(dirBPin, LOW);   
    analogWrite(pwmBPin, 255);
+   delay(100);
+   
 }
 
 //Control motor motion direction and speed function

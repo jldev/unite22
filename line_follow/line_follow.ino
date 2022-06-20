@@ -1,10 +1,3 @@
-/***********************************************************
-File name:  wifi_arduinoTCP18.ino
-Website: www.adeept.com
-E-mail: support@adeept.com
-Author: Tom
-Date: 2019/10/30 
-***********************************************************/
 #include <Servo.h>
 #include <Adafruit_NeoPixel.h>
 // Which pin on the Arduino is connected to the NeoPixels?
