@@ -1,14 +1,4 @@
 #include <Servo.h>
-#include <Adafruit_NeoPixel.h>
-// Which pin on the Arduino is connected to the NeoPixels?
-// On a Trinket or Gemma we suggest changing this to 1
-#define PIN            8
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      3
-// When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
-// Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
-// example for more information on possible values.
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 Servo ultrasonicServo;           // define servo to control turning of ultrasonic sensor
 int trigPin = 10;                  // define Trig pin for ultrasonic ranging module
 int echoPin = 11;                  // define Echo pin for ultrasonic ranging module
@@ -49,17 +39,21 @@ void setup() {
   pinMode(echoPin, INPUT);  // set echoPin to input mode
   ultrasonicServo.write(90);
   pinMode(13, OUTPUT);   // set dirAPin to output mode
-  for(int i=0;i<3;i++){
-      pixels.setPixelColor(i,pixels.Color(0,0,0));
-      pixels.show();    
-      delay(10);       
-  } 
   Serial.begin(9600);
 }
 
 
 void loop() {
-  
+    int left_reading = readLineSensor(LEFT_SENSOR);
+    int middle_reading = readLineSensor(MIDDLE_SENSOR);
+    int right_reading = readLineSensor(RIGHT_SENSOR);  
+
+    Serial.print("Left - ");
+    Serial.print(left_reading);
+    Serial.print("\tMiddle - ");
+    Serial.print(middle_reading);
+    Serial.print("\tRight - ");
+    Serial.println(right_reading);
 }
 
 //Control motor motion direction and speed function
@@ -68,7 +62,7 @@ void ctrlCar( int motorDir, byte motorSpd) {
     case FORWARD:digitalWrite(dirAPin, HIGH);
            digitalWrite(dirBPin, LOW);
            break;
-    case BACK:digitalWrite(dirAPin, LOW);
+    case BACKWARD:digitalWrite(dirAPin, LOW);
            digitalWrite(dirBPin, HIGH);
            break;
     case LEFT:digitalWrite(dirAPin, HIGH);
@@ -116,62 +110,4 @@ int readLineSensor(int pin){
     return_value = analogRead(pin);
   } while(return_value == 1023);
   return return_value;
-}
-
-void goLineFollow(){
-    int left_reading = readLineSensor(LEFT_SENSOR);
-    int middle_reading = readLineSensor(MIDDLE_SENSOR);
-    int right_reading = readLineSensor(RIGHT_SENSOR);
-
-    boolean left_on_line = onLine(left_reading);
-    boolean middle_on_line = onLine(middle_reading);
-    boolean right_on_line = onLine(right_reading);
-    
-    if(left_on_line && middle_on_line && right_on_line){
-      //All on line |||
-      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
-    } else if(left_on_line && !middle_on_line && !right_on_line){
-      //left is on line - right and middle are not | - -
-      ctrlCar(LEFT,MOTOR_DEFAULT_SPEED);
-    }else if(!left_on_line && middle_on_line && !right_on_line){
-      //middle is on line - left and right are not - | -
-      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
-    } else if(!left_on_line && !middle_on_line && right_on_line){
-      //right is on line - left and middle are not - - |
-      ctrlCar(RIGHT,MOTOR_DEFAULT_SPEED);
-    } else if(!left_on_line && !middle_on_line && !right_on_line){
-      //All not on line - - -
-      ctrlCar(STOP,0);
-    }
-    delay(50);
-    ctrlCar(STOP,0);
-}
-
-void goStayInTheLines(){
-    int left_reading = analogRead(LEFT_SENSOR);
-    int middle_reading = analogRead(MIDDLE_SENSOR);
-    int right_reading = analogRead(RIGHT_SENSOR);
-
-    boolean left_on_line = onLine(left_reading);
-    boolean middle_on_line = onLine(middle_reading);
-    boolean right_on_line = onLine(right_reading);
-    
-    if(left_on_line && middle_on_line && right_on_line){
-      //All on line |||
-      ctrlCar(BACKWARD,MOTOR_DEFAULT_SPEED);
-    } else if(left_on_line && !middle_on_line && !right_on_line){
-      //left is on line - right and middle are not | - -
-      ctrlCar(RIGHT,MOTOR_DEFAULT_SPEED);
-    }else if(!left_on_line && middle_on_line && !right_on_line){
-      //middle is on line - left and right are not - | -
-      ctrlCar(BACKWARD,MOTOR_DEFAULT_SPEED);
-    } else if(!left_on_line && !middle_on_line && right_on_line){
-      //right is on line - left and middle are not - - |
-      ctrlCar(LEFT,MOTOR_DEFAULT_SPEED);
-    } else if(!left_on_line && !middle_on_line && !right_on_line){
-      //All not on line - - -
-      ctrlCar(FORWARD,MOTOR_DEFAULT_SPEED);
-    }
-    delay(50);
-    ctrlCar(STOP,0);
 }
