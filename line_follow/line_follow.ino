@@ -59,23 +59,22 @@ void setup() {
 
 
 void loop() {
-  goStayInTheLines();
-  delay(10);
+  
 }
 
 //Control motor motion direction and speed function
 void ctrlCar( int motorDir, byte motorSpd) {
   switch(motorDir){
-    case 1:digitalWrite(dirAPin, HIGH);
+    case FORWARD:digitalWrite(dirAPin, HIGH);
            digitalWrite(dirBPin, LOW);
            break;
-    case 2:digitalWrite(dirAPin, LOW);
+    case BACK:digitalWrite(dirAPin, LOW);
            digitalWrite(dirBPin, HIGH);
            break;
-    case 3:digitalWrite(dirAPin, HIGH);
+    case LEFT:digitalWrite(dirAPin, HIGH);
            digitalWrite(dirBPin, HIGH);
            break;
-    case 4:digitalWrite(dirAPin, LOW);
+    case RIGHT:digitalWrite(dirAPin, LOW);
            digitalWrite(dirBPin, LOW);
            break;    
     default:digitalWrite(dirAPin, LOW);
@@ -118,6 +117,7 @@ int readLineSensor(int pin){
   } while(return_value == 1023);
   return return_value;
 }
+
 void goLineFollow(){
     int left_reading = readLineSensor(LEFT_SENSOR);
     int middle_reading = readLineSensor(MIDDLE_SENSOR);
