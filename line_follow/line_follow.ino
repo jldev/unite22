@@ -48,6 +48,20 @@ void loop() {
     int middle_reading = readLineSensor(MIDDLE_SENSOR);
     int right_reading = readLineSensor(RIGHT_SENSOR);  
 
+    if ( onLine( left_reading ) && !onLine( middle_reading) && !onLine(right_reading)) {
+      ctrlCar(LEFT, 120);
+    }else if ( !onLine( left_reading ) && !onLine( middle_reading) && onLine(right_reading)) {
+      ctrlCar(RIGHT, 120);
+    }else if ( !onLine( left_reading ) && onLine( middle_reading) && onLine(right_reading)) {
+      ctrlCar(RIGHT, 120);
+    }else if ( onLine( left_reading ) && onLine( middle_reading) && onLine(right_reading)) {
+      ctrlCar(LEFT, 120);
+    }else if ( !onLine( left_reading ) && !onLine( middle_reading) && !onLine(right_reading)) {
+      ctrlCar(STOP, 0);
+    }else{
+      ctrlCar(FORWARD, 120); 
+    }
+    
     Serial.print("Left - ");
     Serial.print(left_reading);
     Serial.print("\tMiddle - ");
